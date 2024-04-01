@@ -50,7 +50,7 @@ export default function Home() {
                              setGrabbingPiece(index)
                      }}
                      className={cn(
-                         "w-[45px] h-[45px] sm:w-[100px] sm:h-[100px] flex items-center justify-center",
+                         "w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] 2xl:w-[100px] 2xl:h-[100px] flex items-center justify-center",
                          (index % 2 === Math.floor(index / 8) % 2) ? "bg-white" : "bg-green-800",
                          index === grabbedPiece ? "bg-blue-500" : "",
                          grabbedPieceLegalMoves?.includes(index) ? "bg-blue-300" : "",
