@@ -167,10 +167,10 @@ export function useBoard() {
         return moves
     }
 
-    async function getPieceLegalMoves(from: number) {
+    async function getPieceLegalMoves(from: number, protectTurn: boolean = true) {
         if (board[from] == null) return
         const color = board[from]![0]
-        if (color !== turn) return
+        if (protectTurn && color !== turn) return
         const piece = board[from]![1]
 
         switch (piece) {
@@ -189,37 +189,34 @@ export function useBoard() {
         }
     }
 
-    async function isKingInCheck(color: Color) {
-        let kingPosition = -1;
-
-        for (let i = 0; i < board.length; i++)
+    async function isCheck(color: Color) {
+        let kingSquare = -1;
+        for (let i = 0; i < 64; i++)
             if (board[i] && board[i]![0] === color && board[i]![1] === 6) {
-                kingPosition = i;
+                kingSquare = i;
                 break;
             }
 
-        if (kingPosition === -1) return false;
+        if (kingSquare === -1)
+            return false;
 
-        const opponentMoves = await getAllPossibleMoves(color === 0 ? 1 : 0);
-
-        return opponentMoves.includes(kingPosition);
-    }
-
-    async function getAllPossibleMoves(color: Color) {
-        let moves: number[] = [];
-
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] && board[i]![0] === color) {
-                const pieceMoves = await getPieceLegalMoves(i);
-                if (pieceMoves)
-                    moves = [...moves, ...pieceMoves];
+        for (let i = 0; i < 64; i++)
+            if (board[i] && board[i]![0] !== color) {
+                const legalMoves = await getPieceLegalMoves(i, false);
+                if (legalMoves && legalMoves.includes(kingSquare)) {
+                    return true;
+                }
             }
-        }
 
-        return moves;
+        return false;
     }
 
     async function movePiece(from: number, to: number) {
+        const isKingCheck = await isCheck(turn)
+
+        if (isKingCheck)
+            return
+
         const legalMoves = await getPieceLegalMoves(from)
 
         if (!legalMoves)
@@ -230,10 +227,6 @@ export function useBoard() {
 
         const color = board[from]![0];
         const piece = board[from]![1];
-
-        const isCheck = await isKingInCheck(color);
-
-        console.log(isCheck)
 
         if (piece === 1 && Math.abs(from - to) === 16) {
             const captureSquare = color === 0 ? to + 8 : to - 8;

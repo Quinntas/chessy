@@ -32,26 +32,24 @@ export default function Home() {
             {board.map((piece, index) => (
                 <div key={index}
                      onDrop={(e) => {
-                         onMovePiece(grabbedPiece!, index)
+                         if (grabbedPiece !== null)
+                             onMovePiece(grabbedPiece, index)
                      }}
                      onDragOver={(e) => {
                          e.preventDefault();
                      }}
                      onClick={() => {
-                         if (grabbedPiece !== null) {
+                         if (grabbedPiece !== null)
                              onMovePiece(grabbedPiece, index)
-                         }
                      }}
-                     className={
-                         cn(
-                             "w-[45px] h-[45px] sm:w-[100px] sm:h-[100px] flex items-center justify-center",
-                             (index % 2 === Math.floor(index / 8) % 2) ? "bg-white" : "bg-green-800",
-                             index === grabbedPiece ? "bg-blue-500" : "",
-                             grabbedPieceLegalMoves?.includes(index) ? "bg-blue-300" : ""
-                         )}>
+                     className={cn(
+                         "w-[45px] h-[45px] sm:w-[100px] sm:h-[100px] flex items-center justify-center",
+                         (index % 2 === Math.floor(index / 8) % 2) ? "bg-white" : "bg-green-800",
+                         index === grabbedPiece ? "bg-blue-500" : "",
+                         grabbedPieceLegalMoves?.includes(index) ? "bg-blue-300" : ""
+                     )}>
 
-                    {
-                        piece && piece.length > 0 &&
+                    {piece && piece.length > 0 &&
                         <Image draggable={true}
                                onDragStart={(e) => {
                                    setGrabbingPiece(index)
@@ -63,8 +61,7 @@ export default function Home() {
                                alt={"pice"}
                                className={"cursor-grab"}
                                width={80}
-                               height={80}/>
-                    }
+                               height={80}/>}
                 </div>
             ))}
         </div>
