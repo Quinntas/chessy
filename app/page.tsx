@@ -28,7 +28,7 @@ export default function Home() {
     }
 
     return <div className={"w-screen h-screen flex items-center justify-center select-none "}>
-        <div className={"grid grid-cols-8 shrink-0"}>
+        <div className={cn("grid grid-cols-8 shrink-0")}>
             {board.map((piece, index) => (
                 <div key={index}
                      onDrop={(e) => {
@@ -39,14 +39,22 @@ export default function Home() {
                          e.preventDefault();
                      }}
                      onClick={() => {
-                         if (grabbedPiece !== null)
-                             onMovePiece(grabbedPiece, index)
+                         if (grabbedPiece !== null) {
+                             if (grabbedPieceLegalMoves?.includes(index))
+                                 onMovePiece(grabbedPiece, index)
+                             else {
+                                 if (piece && piece.length > 0)
+                                     setGrabbingPiece(index)
+                             }
+                         } else if (piece && piece.length > 0)
+                             setGrabbingPiece(index)
                      }}
                      className={cn(
                          "w-[45px] h-[45px] sm:w-[100px] sm:h-[100px] flex items-center justify-center",
                          (index % 2 === Math.floor(index / 8) % 2) ? "bg-white" : "bg-green-800",
                          index === grabbedPiece ? "bg-blue-500" : "",
-                         grabbedPieceLegalMoves?.includes(index) ? "bg-blue-300" : ""
+                         grabbedPieceLegalMoves?.includes(index) ? "bg-blue-300" : "",
+                         piece && piece.length > 0 ? "cursor-grab" : ""
                      )}>
 
                     {piece && piece.length > 0 &&
