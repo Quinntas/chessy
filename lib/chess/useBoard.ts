@@ -189,6 +189,38 @@ export function useBoard() {
         }
     }
 
+    async function isKingInCheck(color: Color) {
+        let kingPosition = -1;
+
+        for (let i = 0; i < board.length; i++)
+            if (board[i] && board[i]![0] === color && board[i]![1] === 6) {
+                kingPosition = i;
+                break;
+            }
+
+        if (kingPosition === -1) return false;
+
+        const opponentMoves = await getAllPossibleOpponentMoves(color === 0 ? 1 : 0);
+
+        if (opponentMoves.includes(kingPosition))
+            return true;
+
+        return false
+    }
+
+    async function getAllPossibleOpponentMoves(color: Color) {
+        let moves: number[] = [];
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] && board[i]![0] === color) {
+                const pieceMoves = await getPieceLegalMoves(i);
+                if (pieceMoves) {
+                    moves = [...moves, ...pieceMoves];
+                }
+            }
+        }
+        return moves;
+    }
+
     async function movePiece(from: number, to: number) {
         const legalMoves = await getPieceLegalMoves(from)
 
@@ -200,11 +232,21 @@ export function useBoard() {
 
         const color = board[from]![0];
         const piece = board[from]![1];
+
+        const isCheck = await isKingInCheck(color);
+
+        console.log(isCheck)
+
         if (piece === 1 && Math.abs(from - to) === 16) {
             const captureSquare = color === 0 ? to + 8 : to - 8;
             setEnPassantSquare(captureSquare);
         } else {
             setEnPassantSquare(null);
+        }
+
+        if (piece === 1 && (Math.abs(from - to) === 9 || Math.abs(from - to) === 7) && !board[to]) {
+            const captureSquare = color === 0 ? to + 8 : to - 8;
+            board[captureSquare] = null;
         }
 
         board[to] = board[from]
