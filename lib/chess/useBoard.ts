@@ -17,7 +17,7 @@ export type ChessPiecePlacement = null | [Color, ChessPiece]
 
 export function useBoard() {
     const [turn, setTurn] = useState<Color>(0)
-    const [board, setBoard] = useState<ChessPiecePlacement[]>([])
+    let [board, setBoard] = useState<ChessPiecePlacement[]>([])
     const [enPassantSquare, setEnPassantSquare] = useState<number | null>(null);
 
     useEffect(() => {
@@ -212,11 +212,6 @@ export function useBoard() {
     }
 
     async function movePiece(from: number, to: number) {
-        const isKingCheck = await isCheck(turn)
-
-        if (isKingCheck)
-            return
-
         const legalMoves = await getPieceLegalMoves(from)
 
         if (!legalMoves)
@@ -224,6 +219,19 @@ export function useBoard() {
 
         if (!legalMoves.includes(to))
             return
+
+        const boardCopy = [...board];
+
+        boardCopy[to] = boardCopy[from];
+        boardCopy[from] = null;
+
+        const simulatedBoard = [...board];
+        board = boardCopy;
+        const isKingStillInCheck = await isCheck(turn);
+        board = simulatedBoard;
+
+        if (isKingStillInCheck)
+            return;
 
         const color = board[from]![0];
         const piece = board[from]![1];
