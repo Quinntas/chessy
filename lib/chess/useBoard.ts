@@ -200,24 +200,22 @@ export function useBoard() {
 
         if (kingPosition === -1) return false;
 
-        const opponentMoves = await getAllPossibleOpponentMoves(color === 0 ? 1 : 0);
+        const opponentMoves = await getAllPossibleMoves(color === 0 ? 1 : 0);
 
-        if (opponentMoves.includes(kingPosition))
-            return true;
-
-        return false
+        return opponentMoves.includes(kingPosition);
     }
 
-    async function getAllPossibleOpponentMoves(color: Color) {
+    async function getAllPossibleMoves(color: Color) {
         let moves: number[] = [];
+
         for (let i = 0; i < board.length; i++) {
             if (board[i] && board[i]![0] === color) {
                 const pieceMoves = await getPieceLegalMoves(i);
-                if (pieceMoves) {
+                if (pieceMoves)
                     moves = [...moves, ...pieceMoves];
-                }
             }
         }
+
         return moves;
     }
 
